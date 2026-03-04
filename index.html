@@ -1,0 +1,542 @@
+import React, { useState, useEffect } from 'react';
+import Head from 'next/head';
+import { motion, AnimatePresence } from 'framer-motion';
+import { 
+  Download, 
+  Search, 
+  FileText, 
+  Image as ImageIcon, 
+  Music, 
+  Video, 
+  Code, 
+  Menu, 
+  X, 
+  Github, 
+  Twitter, 
+  Linkedin,
+  ExternalLink,
+  CheckCircle
+} from 'lucide-react';
+import { clsx, type ClassValue } from 'clsx';
+import { twMerge } from 'tailwind-merge';
+
+// Utility for cleaner tailwind classes
+function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs));
+}
+
+// --- Mock Data ---
+interface FileItem {
+  id: string;
+  name: string;
+  description: string;
+  size: string;
+  type: 'document' | 'image' | 'video' | 'audio' | 'code' | 'archive';
+  date: string;
+  downloads: number;
+}
+
+const FILES: FileItem[] = [
+  {
+    id: '1',
+    name: 'Project_Alpha_Specs.pdf',
+    description: 'Complete technical specifications for the Alpha project including architecture diagrams.',
+    size: '2.4 MB',
+    type: 'document',
+    date: '2023-10-15',
+    downloads: 1240
+  },
+  {
+    id: '2',
+    name: 'UI_Kit_v2.0.fig',
+    description: 'Latest Figma design system components for the new dashboard interface.',
+    size: '45 MB',
+    type: 'image',
+    date: '2023-11-02',
+    downloads: 856
+  },
+  {
+    id: '3',
+    name: 'Corporate_Training_Video.mp4',
+    description: 'Onboarding video for new employees regarding company policies and culture.',
+    size: '150 MB',
+    type: 'video',
+    date: '2023-09-20',
+    downloads: 342
+  },
+  {
+    id: '4',
+    name: 'Source_Code_Backup.zip',
+    description: 'Full source code backup for the legacy system before migration.',
+    size: '1.2 GB',
+    type: 'archive',
+    date: '2023-08-05',
+    downloads: 56
+  },
+  {
+    id: '5',
+    name: 'Podcast_Intro_Music.mp3',
+    description: 'Royalty-free intro music for the weekly tech podcast series.',
+    size: '4.5 MB',
+    type: 'audio',
+    date: '2023-11-10',
+    downloads: 2100
+  },
+  {
+    id: '6',
+    name: 'API_Documentation.html',
+    description: 'Interactive HTML documentation for the REST API endpoints.',
+    size: '1.8 MB',
+    type: 'code',
+    date: '2023-10-28',
+    downloads: 670
+  },
+  {
+    id: '7',
+    name: 'Q4_Financial_Report.xlsx',
+    description: 'Detailed financial breakdown for Q4 2023 including projections.',
+    size: '890 KB',
+    type: 'document',
+    date: '2023-12-01',
+    downloads: 120
+  },
+  {
+    id: '8',
+    name: 'Marketing_Assets_2024.zip',
+    description: 'High-resolution logos, banners, and social media templates for 2024 campaigns.',
+    size: '320 MB',
+    type: 'archive',
+    date: '2023-12-15',
+    downloads: 430
+  }
+];
+
+// --- Components ---
+
+const FileIcon = ({ type, className }: { type: FileItem['type']; className?: string }) => {
+  switch (type) {
+    case 'document': return <FileText className={cn("text-blue-400", className)} />;
+    case 'image': return <ImageIcon className={cn("text-purple-400", className)} />;
+    case 'video': return <Video className={cn("text-red-400", className)} />;
+    case 'audio': return <Music className={cn("text-pink-400", className)} />;
+    case 'code': return <Code className={cn("text-green-400", className)} />;
+    case 'archive': return <FileText className={cn("text-yellow-400", className)} />;
+    default: return <FileText className={cn("text-gray-400", className)} />;
+  }
+};
+
+const Navbar = () => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 20);
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const navLinks = [
+    { name: 'Home', href: '#home' },
+    { name: 'Downloads', href: '#downloads' },
+    { name: 'About', href: '#about' },
+    { name: 'Contact', href: '#contact' },
+  ];
+
+  return (
+    <nav 
+      className={cn(
+        "fixed top-0 w-full z-50 transition-all duration-300 border-b border-transparent",
+        scrolled ? "bg-slate-900/80 backdrop-blur-md border-slate-800 py-3" : "bg-transparent py-5"
+      )}
+    >
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="w-10 h-10 bg-gradient-to-br from-violet-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-violet-500/20">
+              <Download className="text-white w-6 h-6" />
+            </div>
+            <span className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400">
+              SK KOLLA
+            </span>
+          </div>
+
+          {/* Desktop Nav */}
+          <div className="hidden md:flex items-center space-x-8">
+            {navLinks.map((link) => (
+              <a 
+                key={link.name} 
+                href={link.href} 
+                className="text-sm font-medium text-slate-300 hover:text-white transition-colors relative group"
+              >
+                {link.name}
+                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-violet-500 transition-all group-hover:w-full" />
+              </a>
+            ))}
+            <button className="bg-white text-slate-900 px-5 py-2 rounded-full text-sm font-bold hover:bg-slate-200 transition-colors">
+              Get Started
+            </button>
+          </div>
+
+          {/* Mobile Menu Button */}
+          <div className="md:hidden">
+            <button 
+              onClick={() => setIsOpen(!isOpen)}
+              className="text-slate-300 hover:text-white p-2"
+            >
+              {isOpen ? <X /> : <Menu />}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Mobile Nav */}
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div 
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            className="md:hidden bg-slate-900 border-b border-slate-800 overflow-hidden"
+          >
+            <div className="px-4 pt-2 pb-6 space-y-2">
+              {navLinks.map((link) => (
+                <a
+                  key={link.name}
+                  href={link.href}
+                  onClick={() => setIsOpen(false)}
+                  className="block px-3 py-3 rounded-md text-base font-medium text-slate-300 hover:text-white hover:bg-slate-800"
+                >
+                  {link.name}
+                </a>
+              ))}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </nav>
+  );
+};
+
+const Hero = () => {
+  return (
+    <section id="home" className="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden">
+      {/* Background Elements */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full z-0 pointer-events-none">
+        <div className="absolute top-20 left-10 w-72 h-72 bg-violet-600/20 rounded-full blur-[100px]" />
+        <div className="absolute bottom-20 right-10 w-96 h-96 bg-indigo-600/20 rounded-full blur-[100px]" />
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+        >
+          <span className="inline-block py-1 px-3 rounded-full bg-slate-800 border border-slate-700 text-violet-400 text-xs font-semibold tracking-wide uppercase mb-6">
+            v2.0 Now Available
+          </span>
+          <h1 className="text-5xl md:text-7xl font-extrabold text-white tracking-tight mb-6">
+            Download Files <br className="hidden md:block" />
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-indigo-400">
+              Effortlessly
+            </span>
+          </h1>
+          <p className="mt-4 max-w-2xl mx-auto text-xl text-slate-400 mb-10">
+            SK KOLLA provides a centralized hub for all your essential files. 
+            Fast, secure, and beautifully organized.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <a 
+              href="#downloads" 
+              className="inline-flex items-center justify-center px-8 py-4 border border-transparent text-base font-medium rounded-full text-white bg-violet-600 hover:bg-violet-700 md:text-lg transition-all shadow-lg shadow-violet-600/25 hover:shadow-violet-600/40"
+            >
+              Browse Files
+            </a>
+            <a 
+              href="#about" 
+              className="inline-flex items-center justify-center px-8 py-4 border border-slate-700 text-base font-medium rounded-full text-slate-300 bg-slate-800/50 hover:bg-slate-800 hover:text-white md:text-lg transition-all backdrop-blur-sm"
+            >
+              Learn More
+            </a>
+          </div>
+        </motion.div>
+      </div>
+    </section>
+  );
+};
+
+const Downloads = () => {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filteredFiles, setFilteredFiles] = useState(FILES);
+  const [downloadingId, setDownloadingId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const results = FILES.filter(file => 
+      file.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      file.description.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    setFilteredFiles(results);
+  }, [searchTerm]);
+
+  const handleDownload = (id: string) => {
+    setDownloadingId(id);
+    // Simulate download delay
+    setTimeout(() => {
+      setDownloadingId(null);
+      // In a real app, this would trigger a window.open or anchor tag click
+      alert(`Download started for file ID: ${id}`);
+    }, 1500);
+  };
+
+  return (
+    <section id="downloads" className="py-24 bg-slate-900/50 relative">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-16">
+          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Available Downloads</h2>
+          <p className="text-slate-400 max-w-2xl mx-auto">
+            Access the latest resources, documents, and media files. 
+            Use the search bar below to find what you need quickly.
+          </p>
+        </div>
+
+        {/* Search Bar */}
+        <div className="max-w-2xl mx-auto mb-12 relative">
+          <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+            <Search className="h-5 w-5 text-slate-500" />
+          </div>
+          <input
+            type="text"
+            className="block w-full pl-11 pr-4 py-4 bg-slate-800 border border-slate-700 rounded-2xl text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all shadow-xl"
+            placeholder="Search files by name or description..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
+
+        {/* File Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <AnimatePresence mode='popLayout'>
+            {filteredFiles.length > 0 ? (
+              filteredFiles.map((file) => (
+                <motion.div
+                  layout
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.9 }}
+                  transition={{ duration: 0.3 }}
+                  key={file.id}
+                  className="group bg-slate-800/50 border border-slate-700/50 rounded-2xl p-6 hover:bg-slate-800 hover:border-slate-600 transition-all duration-300 hover:shadow-2xl hover:shadow-violet-900/10 flex flex-col"
+                >
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="p-3 bg-slate-900 rounded-xl border border-slate-700 group-hover:border-violet-500/30 group-hover:bg-slate-950 transition-colors">
+                      <FileIcon type={file.type} className="w-8 h-8" />
+                    </div>
+                    <span className="text-xs font-medium px-2.5 py-1 rounded-full bg-slate-900 text-slate-400 border border-slate-700">
+                      {file.size}
+                    </span>
+                  </div>
+                  
+                  <h3 className="text-lg font-bold text-white mb-2 line-clamp-1" title={file.name}>
+                    {file.name}
+                  </h3>
+                  <p className="text-slate-400 text-sm mb-6 line-clamp-2 flex-grow">
+                    {file.description}
+                  </p>
+
+                  <div className="flex items-center justify-between mt-auto pt-4 border-t border-slate-700/50">
+                    <div className="flex flex-col">
+                      <span className="text-xs text-slate-500">Updated</span>
+                      <span className="text-xs text-slate-300">{file.date}</span>
+                    </div>
+                    <button
+                      onClick={() => handleDownload(file.id)}
+                      disabled={downloadingId === file.id}
+                      className={cn(
+                        "flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all",
+                        downloadingId === file.id 
+                          ? "bg-green-500/20 text-green-400 cursor-default"
+                          : "bg-violet-600 text-white hover:bg-violet-500 hover:shadow-lg hover:shadow-violet-600/25"
+                      )}
+                    >
+                      {downloadingId === file.id ? (
+                        <>
+                          <CheckCircle className="w-4 h-4" />
+                          <span>Done</span>
+                        </>
+                      ) : (
+                        <>
+                          <Download className="w-4 h-4" />
+                          <span>Download</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </motion.div>
+              ))
+            ) : (
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="col-span-full text-center py-20"
+              >
+                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-slate-800 mb-4">
+                  <Search className="w-8 h-8 text-slate-500" />
+                </div>
+                <h3 className="text-xl font-medium text-white mb-2">No files found</h3>
+                <p className="text-slate-400">Try adjusting your search terms.</p>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      </div>
+    </section>
+  );
+};
+
+const About = () => {
+  return (
+    <section id="about" className="py-24 bg-slate-950">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid md:grid-cols-2 gap-12 items-center">
+          <div>
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
+              Why Choose <span className="text-violet-500">SK KOLLA</span>?
+            </h2>
+            <p className="text-slate-400 text-lg mb-6">
+              We built this platform to simplify file distribution for teams and communities. 
+              No more messy email attachments or broken links.
+            </p>
+            <ul className="space-y-4">
+              {[
+                'Lightning fast CDN delivery',
+                'Secure and virus-scanned files',
+                'Clean, ad-free interface',
+                'Organized categorization'
+              ].map((item, i) => (
+                <li key={i} className="flex items-center gap-3 text-slate-300">
+                  <div className="w-6 h-6 rounded-full bg-violet-500/20 flex items-center justify-center">
+                    <CheckCircle className="w-4 h-4 text-violet-400" />
+                  </div>
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div className="relative">
+            <div className="absolute inset-0 bg-gradient-to-r from-violet-600 to-indigo-600 rounded-2xl blur-2xl opacity-20" />
+            <div className="relative bg-slate-900 border border-slate-800 rounded-2xl p-8 shadow-2xl">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="bg-slate-800/50 p-4 rounded-xl border border-slate-700">
+                  <div className="text-3xl font-bold text-white mb-1">50k+</div>
+                  <div className="text-sm text-slate-400">Downloads</div>
+                </div>
+                <div className="bg-slate-800/50 p-4 rounded-xl border border-slate-700">
+                  <div className="text-3xl font-bold text-white mb-1">99.9%</div>
+                  <div className="text-sm text-slate-400">Uptime</div>
+                </div>
+                <div className="bg-slate-800/50 p-4 rounded-xl border border-slate-700">
+                  <div className="text-3xl font-bold text-white mb-1">24/7</div>
+                  <div className="text-sm text-slate-400">Support</div>
+                </div>
+                <div className="bg-slate-800/50 p-4 rounded-xl border border-slate-700">
+                  <div className="text-3xl font-bold text-white mb-1">100%</div>
+                  <div className="text-sm text-slate-400">Free</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+};
+
+const Contact = () => {
+  return (
+    <section id="contact" className="py-24 bg-slate-900">
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Get in Touch</h2>
+        <p className="text-slate-400 mb-10">
+          Have a file request or need support? We're here to help.
+        </p>
+        
+        <form className="space-y-4 text-left bg-slate-800/50 p-8 rounded-2xl border border-slate-700 shadow-xl" onSubmit={(e) => e.preventDefault()}>
+          <div className="grid md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-slate-300">Name</label>
+              <input type="text" className="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-transparent outline-none text-white transition-all" placeholder="John Doe" />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-slate-300">Email</label>
+              <input type="email" className="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-transparent outline-none text-white transition-all" placeholder="john@example.com" />
+            </div>
+          </div>
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-slate-300">Message</label>
+            <textarea rows={4} className="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-transparent outline-none text-white transition-all" placeholder="How can we help you?" />
+          </div>
+          <button className="w-full py-4 bg-gradient-to-r from-violet-600 to-indigo-600 text-white font-bold rounded-lg hover:opacity-90 transition-opacity shadow-lg">
+            Send Message
+          </button>
+        </form>
+      </div>
+    </section>
+  );
+};
+
+const Footer = () => {
+  return (
+    <footer className="bg-slate-950 border-t border-slate-900 py-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex flex-col md:flex-row justify-between items-center gap-6">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-slate-800 rounded-lg flex items-center justify-center">
+              <Download className="text-violet-500 w-4 h-4" />
+            </div>
+            <span className="text-xl font-bold text-white">
+              SK KOLLA
+            </span>
+          </div>
+          
+          <div className="flex gap-6">
+            <a href="#" className="text-slate-400 hover:text-white transition-colors">
+              <Github className="w-5 h-5" />
+            </a>
+            <a href="#" className="text-slate-400 hover:text-white transition-colors">
+              <Twitter className="w-5 h-5" />
+            </a>
+            <a href="#" className="text-slate-400 hover:text-white transition-colors">
+              <Linkedin className="w-5 h-5" />
+            </a>
+          </div>
+
+          <div className="text-slate-500 text-sm">
+            © {new Date().getFullYear()} SK KOLLA. All rights reserved.
+          </div>
+        </div>
+      </div>
+    </footer>
+  );
+};
+
+export default function LandingPage() {
+  return (
+    <div className="min-h-screen bg-slate-950 text-slate-200 font-sans selection:bg-violet-500/30">
+      <Head>
+        <title>SK KOLLA | File Download Hub</title>
+        <meta name="description" content="Download files easily with SK KOLLA" />
+      </Head>
+
+      <Navbar />
+      
+      <main>
+        <Hero />
+        <Downloads />
+        <About />
+        <Contact />
+      </main>
+
+      <Footer />
+    </div>
+  );
+}
